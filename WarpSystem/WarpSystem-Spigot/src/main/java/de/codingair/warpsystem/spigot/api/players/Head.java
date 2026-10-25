@@ -13,8 +13,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ public class Head {
         String pValue = property == null ? null : PropertyUtils.getValue(property);
 
         try {
-            JSONObject json = (JSONObject) new JSONParser().parse(new String(Base64Coder.decode(pValue)));
+            JSONObject json = (JSONObject) new JSONParser().parse(new String(Base64.getDecoder().decode(pValue), StandardCharsets.UTF_8));
             JSONObject textures = (JSONObject) json.get("textures");
             JSONObject SKIN = (JSONObject) textures.get("SKIN");
             String url = (String) (SKIN.get("url") == null ? SKIN.get("URL") : SKIN.get("url"));
@@ -49,7 +50,7 @@ public class Head {
 
     public GameProfile buildProfile() {
         Multimap<String, Property> properties = LinkedHashMultimap.create();
-        properties.put("textures", new Property("textures", Base64Coder.encodeString(String.format(textures, id)), "BLANK"));
+        properties.put("textures", new Property("textures", Base64.getEncoder().encodeToString(String.format(textures, id).getBytes(StandardCharsets.UTF_8)), "BLANK"));
 
         return GameProfileUtils.createGameProfile(UUID.randomUUID(), "BLANK", GameProfileUtils.createPropertyMap(properties));
     }
